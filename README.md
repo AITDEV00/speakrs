@@ -2,7 +2,7 @@
 
 Fast Rust speaker diarization (who spoke when) with pyannote-level accuracy.
 
-On VoxConverse dev, `speakrs` gets **7.0% DER at 1786x realtime** on an RTX 4090, so an hour of audio takes about 2.0 seconds. On an Apple M4 Pro with CoreML it gets 7.1% DER at 529x. pyannote gets 7.2% at 32x in an earlier run on an RTX 4090, and 24x on the M4 Pro. Full results are in [benchmarks/](https://github.com/avencera/speakrs/tree/master/benchmarks).
+On VoxConverse dev, `speakrs` gets **7.0% DER at 1786x realtime** on an RTX 4090, so an hour of audio takes about 2.0 seconds. On an Apple M4 Pro with CoreML it gets 7.1% DER at 529x. pyannote gets 7.2% at 32x on an RTX 4090, and 24x on the M4 Pro. Full results are in [benchmarks/](https://github.com/avencera/speakrs/tree/master/benchmarks).
 
 If you want a small end-to-end app using it, see [avencera/smrze](https://github.com/avencera/smrze).
 
