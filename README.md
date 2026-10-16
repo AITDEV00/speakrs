@@ -24,16 +24,16 @@ No inference backend is enabled by default. Pick the one for your platform:
 
 ```toml
 # macOS (CoreML)
-speakrs = { version = "0.6", features = ["coreml"] }
+speakrs = { version = "0.7", features = ["coreml"] }
 
 # NVIDIA GPU
-speakrs = { version = "0.6", features = ["cuda"] }
+speakrs = { version = "0.7", features = ["cuda"] }
 
 # CPU
-speakrs = { version = "0.6", features = ["cpu"] }
+speakrs = { version = "0.7", features = ["cpu"] }
 
 # AMD GPU
-speakrs = { version = "0.6", features = ["migraphx"] }
+speakrs = { version = "0.7", features = ["migraphx"] }
 ```
 
 The `cpu`, `coreml` and `cuda` features run native backends, so a build with only those
@@ -118,6 +118,23 @@ let mut pipeline = OwnedDiarizationPipeline::from_dir(
 )?;
 let result = pipeline.run(&audio)?;
 ```
+
+### Python
+
+```sh
+pip install speakrs
+```
+
+```python
+import speakrs
+
+pipeline = speakrs.Pipeline.from_pretrained("coreml")  # or "cpu", "cuda"
+print(pipeline.diarize_file("meeting.wav").rttm())
+```
+
+The macOS arm64 wheel includes CPU and CoreML, and the Linux x86_64 wheel
+includes CPU and CUDA. See [the Python package](https://github.com/avencera/speakrs/blob/master/crates/speakrs-python/README.md)
+and its [API reference](https://github.com/avencera/speakrs/blob/master/crates/speakrs-python/API.md).
 
 ## Choosing a mode
 
@@ -301,7 +318,7 @@ layer without a speakrs kernel, and loads them only then. On the GPUs listed
 below every layer has a kernel, so the libraries aren't loaded.
 
 ```toml
-speakrs = { version = "0.6", features = ["cuda"] }
+speakrs = { version = "0.7", features = ["cuda"] }
 ```
 
 **Know your GPU? Use its feature for fewer dependencies and a smaller install.**
@@ -321,7 +338,7 @@ On the GPUs we tested, these builds run within about 1% of `cuda`.
 | RTX 50 series | `cuda-rtx50` |
 
 ```toml
-speakrs = { version = "0.6", features = ["cuda-rtx40"] }
+speakrs = { version = "0.7", features = ["cuda-rtx40"] }
 ```
 
 #### Tested NVIDIA GPUs

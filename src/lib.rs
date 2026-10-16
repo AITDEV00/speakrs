@@ -16,16 +16,16 @@
 //!
 //! ```toml
 //! # macOS (CoreML)
-//! speakrs = { version = "0.6", features = ["coreml"] }
+//! speakrs = { version = "0.7", features = ["coreml"] }
 //!
 //! # NVIDIA GPU
-//! speakrs = { version = "0.6", features = ["cuda"] }
+//! speakrs = { version = "0.7", features = ["cuda"] }
 //!
 //! # CPU
-//! speakrs = { version = "0.6", features = ["cpu"] }
+//! speakrs = { version = "0.7", features = ["cpu"] }
 //!
 //! # AMD GPU
-//! speakrs = { version = "0.6", features = ["migraphx"] }
+//! speakrs = { version = "0.7", features = ["migraphx"] }
 //! ```
 //!
 //! The `cpu`, `coreml` and `cuda` features run native backends, so a build with only those
@@ -119,6 +119,23 @@
 //! let result = pipeline.run(&audio)?;
 //! # Ok::<(), Box<dyn std::error::Error + Send + Sync>>(())
 //! ```
+//!
+//! ## Python
+//!
+//! ```sh
+//! pip install speakrs
+//! ```
+//!
+//! ```python
+//! import speakrs
+//!
+//! pipeline = speakrs.Pipeline.from_pretrained("coreml")  # or "cpu", "cuda"
+//! print(pipeline.diarize_file("meeting.wav").rttm())
+//! ```
+//!
+//! The macOS arm64 wheel includes CPU and CoreML, and the Linux x86_64 wheel
+//! includes CPU and CUDA. See [the Python package](https://github.com/avencera/speakrs/blob/master/crates/speakrs-python/README.md)
+//! and its [API reference](https://github.com/avencera/speakrs/blob/master/crates/speakrs-python/API.md).
 //!
 //! # Choosing a mode
 //!
@@ -302,7 +319,7 @@
 //! below every layer has a kernel, so the libraries aren't loaded.
 //!
 //! ```toml
-//! speakrs = { version = "0.6", features = ["cuda"] }
+//! speakrs = { version = "0.7", features = ["cuda"] }
 //! ```
 //!
 //! **Know your GPU? Use its feature for fewer dependencies and a smaller install.**
@@ -322,7 +339,7 @@
 //! | RTX 50 series | `cuda-rtx50` |
 //!
 //! ```toml
-//! speakrs = { version = "0.6", features = ["cuda-rtx40"] }
+//! speakrs = { version = "0.7", features = ["cuda-rtx40"] }
 //! ```
 //!
 //! ### Tested NVIDIA GPUs
