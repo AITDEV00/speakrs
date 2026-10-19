@@ -10,6 +10,15 @@ fixtures/models
 fixtures/datasets
 fixtures/dataset-instructions.md
 
+# Local benchmark inputs: AMI corpus recordings (license: corpus
+# redistribution terms, not re-shippable) and large ad-hoc test clips.
+# Fetch AMI meetings from the AMI corpus / HF datasets instead.
+test-audio/
+
+# Local build output (maturin wheels are reproducible; the release wheel
+# is staged into coro's docker context separately).
+dist/
+
 .envrc
 /scripts/speakerkit-bench/Packages
 scripts/speakerkit-bench/Package.resolved
