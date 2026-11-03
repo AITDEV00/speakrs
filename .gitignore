@@ -7,8 +7,12 @@ __pycache__/
 .gpu-instances/
 
 fixtures/models
+fixtures/models--*/
 fixtures/datasets
 fixtures/dataset-instructions.md
+
+# Consumer-team spike archive shared for review (their code, not ours).
+pyannote-service.zip
 
 # Local benchmark inputs: AMI corpus recordings (license: corpus
 # redistribution terms, not re-shippable) and large ad-hoc test clips.
