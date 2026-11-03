@@ -18,6 +18,8 @@ DEFAULT_MODEL_REPOSITORY: str
 """Hugging Face repository that hosts the models."""
 DEFAULT_MODEL_REVISION: str
 """Repository revision this release loads."""
+SPEAKER_EMBEDDING_DIM: int
+"""Dimension of the per-speaker vectors in DiarizationResult.speaker_embeddings."""
 
 @final
 class CancelToken:
@@ -248,6 +250,11 @@ class DiarizationResult:
     @property
     def speakers(self) -> list[str]:
         """Sorted, distinct speaker labels."""
+    @property
+    def speaker_embeddings(self) -> dict[str, list[float] | None]:
+        """Per-speaker vectors keyed by the ``SPEAKER_xx`` labels in
+        ``segments``/``exclusive_segments``; ``SPEAKER_EMBEDDING_DIM`` floats
+        each, or ``None`` for a speaker with no computed centroid."""
     @property
     def mode(self) -> str:
         """Execution mode that produced the result, such as ``"CPU"``."""

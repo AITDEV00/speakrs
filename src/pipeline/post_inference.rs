@@ -37,6 +37,7 @@ pub fn post_inference(
             speaker_count,
             hard_clusters: ChunkSpeakerClusters(Array2::zeros((0, 0))),
             discrete_diarization: DiscreteDiarization(Array2::zeros((0, 0))),
+            centroids: ndarray::Array2::<f32>::zeros((0, 0)),
             segments: Vec::new(),
             exclusive_segments: Vec::new(),
         });
@@ -44,7 +45,8 @@ pub fn post_inference(
 
     let training_embeddings =
         embeddings.training_set(&segmentations, config.effective_clean_frame_duration());
-    let hard_clusters = training_embeddings.cluster(&segmentations, &embeddings, plda, config)?;
+    let (hard_clusters, centroids) =
+        training_embeddings.cluster(&segmentations, &embeddings, plda, config)?;
 
     let reconstructor = Reconstructor::new(&segmentations, &hard_clusters, &layout.start_frames)?;
     let activations = reconstructor.frame_activations(&speaker_count);
@@ -75,6 +77,7 @@ pub fn post_inference(
         speaker_count,
         hard_clusters,
         discrete_diarization,
+        centroids,
         segments,
         exclusive_segments,
     })

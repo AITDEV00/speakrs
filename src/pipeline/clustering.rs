@@ -78,12 +78,21 @@ impl TrainingEmbeddings {
         embeddings: &ChunkEmbeddings,
         plda: &PldaTransform,
         config: &PipelineConfig,
-    ) -> Result<ChunkSpeakerClusters, PipelineError> {
+    ) -> Result<(ChunkSpeakerClusters, Array2<f32>), PipelineError> {
         if self.0.nrows() < 2 {
             let mut clusters =
                 Array2::<i32>::zeros((segmentations.0.shape()[0], segmentations.0.shape()[2]));
             mark_inactive_speakers(&segmentations.0, &mut clusters);
-            return Ok(ChunkSpeakerClusters(clusters));
+            // Single-cluster fast path: every active chunk embedding belongs
+            // to cluster 0, so its centroid is the plain mean. Kept as a
+            // 1-row array so centroid row k always exists for cluster k.
+            let centroid = if self.0.nrows() == 0 {
+                Array2::<f32>::zeros((1, self.0.ncols()))
+            } else {
+                let mean = self.0.mean_axis(ndarray::Axis(0)).unwrap_or_default();
+                mean.insert_axis(ndarray::Axis(0))
+            };
+            return Ok((ChunkSpeakerClusters(clusters), centroid));
         }
 
         let ahc_start = std::time::Instant::now();
@@ -155,7 +164,10 @@ impl TrainingEmbeddings {
             "hard_clusters shape"
         );
 
-        Ok(ChunkSpeakerClusters(clusters))
+        // `centroids` row k is the weighted centroid of cluster k; cluster k
+        // becomes activation column k and therefore SPEAKER_%02k in segments
+        // (see Reconstructor::frame_activations + Segment::to label minting).
+        Ok((ChunkSpeakerClusters(clusters), centroids))
     }
 }
 

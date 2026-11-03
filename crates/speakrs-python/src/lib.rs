@@ -70,6 +70,10 @@ fn _native(m: &Bound<'_, PyModule>) -> PyResult<()> {
         "DEFAULT_MODEL_REVISION",
         speakrs_sdk::DEFAULT_MODEL_REVISION,
     )?;
+    m.add(
+        "SPEAKER_EMBEDDING_DIM",
+        crate::results::SPEAKER_EMBEDDING_DIM,
+    )?;
     m.add_class::<PyCancelToken>()?;
     m.add_class::<PyActivityCleanup>()?;
     m.add_class::<PyAhcConfig>()?;

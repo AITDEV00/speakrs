@@ -1,6 +1,34 @@
 # Changelog
 
 ## [Unreleased]
+## [0.7.1] - 2026-11-03
+
+- Add per-speaker embeddings to diarization results: the pipeline's clustering
+  stage already computes one weighted centroid per detected speaker and discards
+  it; `DiarizationResult` (Rust) now carries those `centroids`, the SDK's
+  `Diarization` exposes `speaker_centroids` plus a `speaker_labels` helper, and
+  the Python `DiarizationResult` gains a `speaker_embeddings` getter — a dict
+  keyed by the same `SPEAKER_xx` labels as `segments`, each value a list of
+  `SPEAKER_EMBEDDING_DIM` (256) floats or `None` for a speaker with no
+  computed centroid. Row `k` of the centroids belongs to `SPEAKER_{k:02}` by
+  construction, so keys and diarization labels always correspond.
+- No request-side or configuration change: the vectors are always computed and
+  merely surfaced, so existing callers see no behavioral difference apart from
+  the new read-only fields.
+## [0.7.1] - 2026-11-03
+
+- Add per-speaker embeddings to diarization results: the pipeline's clustering
+  stage already computes one weighted centroid per detected speaker and discards
+  it; `DiarizationResult` (Rust) now carries those `centroids`, the SDK's
+  `Diarization` exposes `speaker_centroids` plus a `speaker_labels` helper, and
+  the Python `DiarizationResult` gains a `speaker_embeddings` getter — a dict
+  keyed by the same `SPEAKER_xx` labels as `segments`, each value a list of
+  `SPEAKER_EMBEDDING_DIM` (256) floats or `None` for a speaker with no
+  computed centroid. Row `k` of the centroids belongs to `SPEAKER_{k:02}` by
+  construction, so keys and diarization labels always correspond.
+- No request-side or configuration change: the vectors are always computed and
+  merely surfaced, so existing callers see no behavioral difference apart from
+  the new read-only fields.
 
 ## [0.7.0] - 2026-10-15
 

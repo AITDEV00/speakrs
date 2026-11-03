@@ -99,8 +99,13 @@ code `queue_closed`, which also ends iteration. Ctrl+C interrupts a waiting
 - `segments` and `exclusive_segments`, both `list[Segment]`. Exclusive segments
   have at most one speaker at a time; each overlap goes to the speaker with the
   highest activation.
-- `speakers`, `file_id`, `duration`, `mode`, `model_revision`
-- `timing`, a `TimingStats`, or `None` for batch and queue results
+- `speakers`, `file_id`, `duration`, `mode`, `model_revision`- `speaker_embeddings`, a dict keyed by the same `SPEAKER_xx` labels as
+  `segments`/`exclusive_segments`; each value is a list of
+  `SPEAKER_EMBEDDING_DIM` floats (256 for community-1) or `None` for a
+  speaker with no computed centroid (the speaker-count head demanded more
+  speakers than clustering found). Row `k` of the clustering centroids
+  belongs to `SPEAKER_{k:02}` by construction, so keys and diarization
+  labels always correspond.- `timing`, a `TimingStats`, or `None` for batch and queue results
 - `rttm(file_id=None, *, exclusive=False)`
 
 `Segment` has `start`, `end`, `speaker`, and `duration`.

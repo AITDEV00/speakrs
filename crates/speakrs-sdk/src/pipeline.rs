@@ -101,6 +101,12 @@ pub struct Diarization {
     /// Speaker turns with at most one speaker at a time; overlaps go to the
     /// speaker with the highest activation
     pub exclusive_segments: Vec<Segment>,
+    /// Per-speaker embedding-space centroids, row-major: row `k` is the
+    /// representative vector of the speaker labelled `SPEAKER_{k:02}`
+    /// (256 floats for community-1). Row count equals the number of
+    /// detected clusters; speakers that exist only because the speaker-count
+    /// head demanded them have no row.
+    pub speaker_centroids: Vec<Vec<f32>>,
     /// Mode that produced the result
     pub mode: ExecutionMode,
     /// Model revision, when the models were prepared from a known revision
@@ -118,6 +124,27 @@ impl Diarization {
             &self.segments
         };
         speakrs::segment::to_rttm(segments, file_id.unwrap_or(&self.file_id))
+    }
+
+    /// Speaker labels in centroid-row order: entry `k` is the label of the
+    /// speaker whose representative vector is [`Self::speaker_centroids`]
+    /// row `k` (`SPEAKER_00`, `SPEAKER_01`, ...), followed by any extra
+    /// labels present in the diarization beyond the centroid rows (they
+    /// have no vector — the padded-speaker case).
+    pub fn speaker_labels(&self) -> Vec<String> {
+        let mut labels: Vec<String> = (0..self.speaker_centroids.len())
+            .map(|k| format!("SPEAKER_{k:02}"))
+            .collect();
+        let seen: std::collections::HashSet<&str> =
+            labels.iter().map(String::as_str).collect();
+        let extras: Vec<String> = self
+            .segments
+            .iter()
+            .map(|segment| segment.speaker.clone())
+            .filter(|label| !seen.contains(label.as_str()))
+            .collect();
+        labels.extend(extras);
+        labels
     }
 }
 
@@ -324,11 +351,18 @@ pub(crate) fn to_diarization(
     model_revision: Option<String>,
     timing: Option<TimingStats>,
 ) -> Diarization {
+    let speaker_centroids = result
+        .centroids
+        .rows()
+        .into_iter()
+        .map(|row| row.to_vec())
+        .collect();
     Diarization {
         file_id,
         duration,
         segments: result.segments,
         exclusive_segments: result.exclusive_segments,
+        speaker_centroids,
         mode,
         model_revision,
         timing,

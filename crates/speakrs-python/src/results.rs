@@ -1,8 +1,14 @@
 //! Result and event types returned to Python
 
 use pyo3::prelude::*;
+use pyo3::types::{PyDict, PyList};
 use speakrs_sdk::speakrs::segment::Segment;
 use speakrs_sdk::{Diarization, ProgressEvent, QueueItem, TimingStats, mode_name};
+
+/// Dimension of the per-speaker embeddings returned by
+/// [`PyDiarizationResult::speaker_embeddings`] (256 for community-1).
+/// Exposed to Python as `speakrs.SPEAKER_EMBEDDING_DIM`.
+pub(crate) const SPEAKER_EMBEDDING_DIM: usize = 256;
 
 use crate::{py_bool, py_opt_str, sdk_err};
 
@@ -142,6 +148,37 @@ impl PyDiarizationResult {
         speakers.sort();
         speakers.dedup();
         speakers
+    }
+
+    /// One embedding-space vector per detected speaker, keyed by the same
+    /// `SPEAKER_xx` labels used in `segments`/`exclusive_segments`.
+    ///
+    /// Row `k` of the clustering centroids belongs to the speaker labelled
+    /// `SPEAKER_{k:02}` by construction, so keys and values always
+    /// correspond. A speaker that appears in the diarization but has no
+    /// centroid row (the speaker-count head demanded more speakers than
+    /// clustering found — the upstream "padded row" case) maps to `None`
+    /// instead of a zero vector. Every present vector has
+    /// `speaker_embedding_dim` floats.
+    #[getter]
+    fn speaker_embeddings(&self) -> Py<PyAny> {
+        Python::attach(|py| {
+            let dict = PyDict::new(py);
+            let labels = self.0.speaker_labels();
+            for (k, label) in labels.iter().enumerate() {
+                let value = match self.0.speaker_centroids.get(k) {
+                    Some(row) if row.iter().any(|v| *v != 0.0) => {
+                        PyList::new(py, row.iter().copied())
+                            .expect("finite centroid row")
+                            .into_any()
+                    }
+                    _ => py.None().into_bound(py),
+                };
+                dict.set_item(label, value)
+                    .expect("label strings are hashable");
+            }
+            dict.into_any().unbind()
+        })
     }
 
     /// Execution mode that produced the result, such as `"CPU"`

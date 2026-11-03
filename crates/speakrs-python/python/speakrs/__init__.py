@@ -27,6 +27,7 @@ from ._errors import SpeakrsError
 from ._native import (
     DEFAULT_MODEL_REPOSITORY,
     DEFAULT_MODEL_REVISION,
+    SPEAKER_EMBEDDING_DIM,
     ActivityCleanup,
     AhcConfig,
     CacheEntry,
@@ -440,6 +441,7 @@ class Queue:
 __all__ = [
     "DEFAULT_MODEL_REPOSITORY",
     "DEFAULT_MODEL_REVISION",
+    "SPEAKER_EMBEDDING_DIM",
     "ActivityCleanup",
     "AhcConfig",
     "CacheEntry",

@@ -282,6 +282,10 @@ pub struct DiarizationResult {
     pub hard_clusters: ChunkSpeakerClusters,
     /// Frame-level binary speaker activations after reconstruction
     pub discrete_diarization: DiscreteDiarization,
+    /// Weighted per-speaker centroids: row k is the embedding-space
+    /// representative of cluster k, i.e. of the speaker labelled
+    /// `SPEAKER_%02k` in `segments`/`exclusive_segments`.
+    pub centroids: ndarray::Array2<f32>,
     /// Merged speaker segments (time-stamped speaker turns)
     pub segments: Vec<crate::segment::Segment>,
     /// Merged speaker segments with at most one active speaker at any time

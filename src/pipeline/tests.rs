@@ -791,6 +791,58 @@ fn run_inference_only_plus_finish_matches_run_with_config() {
 
 #[cfg(feature = "cpu")]
 #[test]
+fn centroids_row_count_matches_distinct_labels_and_dim_is_256() {
+    let harness = PipelineTestHarness::load();
+    let Some(mut pipeline) = harness.cpu_pipeline() else {
+        return;
+    };
+    let config = pipeline.pipeline_config();
+    let result = pipeline
+        .run_with_config(harness.audio(), "file1", &config)
+        .unwrap();
+
+    // Every segment's speaker comes from an activation column index; every
+    // centroid row covers a cluster index. Centroid row k belongs to the
+    // speaker labelled SPEAKER_%02k by construction, so the number of
+    // centroid rows must be at least the number of distinct labels that
+    // have a row, and every present vector has the embedding dimension.
+    let labels: std::collections::BTreeSet<&str> = result
+        .segments
+        .iter()
+        .map(|segment| segment.speaker.as_str())
+        .collect();
+    let dim = result.centroids.ncols();
+
+    for (k, label) in labels.iter().enumerate() {
+        let expected = format!("SPEAKER_{k:02}");
+        assert_eq!(
+            label, &expected,
+            "label order must follow centroid row order"
+        );
+    }
+    if !labels.is_empty() {
+        assert!(
+            result.centroids.nrows() >= labels.len(),
+            "cluster count ({}) covers every labelled speaker ({})",
+            result.centroids.nrows(),
+            labels.len()
+        );
+    }
+    assert_eq!(
+        dim, 256,
+        "community-1 embeddings are 256-wide (EMBEDDING_WIDTH)"
+    );
+    assert!(
+        result
+            .centroids
+            .iter()
+            .all(|value| value.is_finite()),
+        "centroids must be finite"
+    );
+}
+
+#[cfg(feature = "cpu")]
+#[test]
 fn pipeline_builder_applies_custom_default_config_to_build() {
     let harness = PipelineTestHarness::load();
     let expected = custom_pipeline_config();
